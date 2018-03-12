@@ -19,6 +19,7 @@ language:
    help-debug: "Additional debug commands:"
    help-debug-set: "Test the pasting of a schematic"
    help-debug-reset: "Set the schematic to default"
+   timeout: "Your looting session lasted too long! You've looted the following:"
 chests: []
 debug: true
 version: ${version}
