@@ -68,6 +68,9 @@ public class TreasureChest {
         _active = false;
         _player = null;
         _rewards = null;
+        for(Location location : _loot){
+            location.getBlock().setType(Material.AIR);
+        }
         _loot = null;
         _type = null;
         _timeStarted = 0L;
