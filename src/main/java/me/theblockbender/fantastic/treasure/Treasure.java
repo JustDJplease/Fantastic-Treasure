@@ -6,14 +6,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Treasure extends JavaPlugin {
 
+    public Language language;
+
     @Override
     public void onEnable() {
-        getLogger().info("onEnable");
+        getLogger().info("Enabling treasure chest feature.");
+        language = new Language(this);
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("onDisable");
+        getLogger().info("Disabling treasure chest feature.");
     }
 }
 
