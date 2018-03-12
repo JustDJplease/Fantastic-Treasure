@@ -3,7 +3,6 @@ package me.theblockbender.fantastic.treasure.util;
 import com.boydti.fawe.FaweAPI;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import com.sk89q.worldedit.math.transform.Transform;
 import me.theblockbender.fantastic.treasure.Treasure;
 import me.theblockbender.fantastic.treasure.manager.TreasureType;
 import org.bukkit.Location;
