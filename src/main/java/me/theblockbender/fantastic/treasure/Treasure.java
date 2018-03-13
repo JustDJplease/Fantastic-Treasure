@@ -24,7 +24,7 @@ public class Treasure extends JavaPlugin {
     public SchematicHandler schematicHandler;
     public TreasureGUI treasureGUI;
     public HashMap<Location, TreasureChest> treasureChests = new HashMap<>();
-    public List<UUID> gui = new ArrayList<>();
+    public HashMap<UUID, TreasureChest> gui = new HashMap<>();
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override

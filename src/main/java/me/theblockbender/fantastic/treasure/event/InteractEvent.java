@@ -30,25 +30,26 @@ public class InteractEvent implements Listener {
         Location location = clicked.getLocation();
         if (treasure.treasureChests.containsKey(location)) {
             event.setCancelled(true);
-            if(treasure.treasureChests.get(location).isActive()){
+            TreasureChest treasureChest = treasure.treasureChests.get(location);
+            if (treasureChest.isActive()) {
                 player.sendMessage(treasure.language.getWithPrefix("already-active"));
                 return;
             }
-            treasure.treasureGUI.openGUI(player);
+            treasure.treasureGUI.openGUI(player, treasureChest);
             return;
         }
         TreasureChest session = null;
         for (Map.Entry<Location, TreasureChest> entry : treasure.treasureChests.entrySet()) {
             TreasureChest treasureChest = entry.getValue();
-            if(treasureChest.isLootChestLootable(location)){
+            if (treasureChest.isLootChestLootable(location)) {
                 session = treasureChest;
                 break;
             }
         }
-        if(session == null)
+        if (session == null)
             return;
         event.setCancelled(true);
-        if(session.isOwner(player)){
+        if (session.isOwner(player)) {
             //TODO open loot.
             return;
         }
