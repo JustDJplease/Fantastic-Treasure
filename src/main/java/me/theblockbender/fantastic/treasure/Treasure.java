@@ -56,6 +56,9 @@ public class Treasure extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("Disabling treasure chest feature.");
+        for (Map.Entry<FixedLocation, TreasureChest> entry : treasureChests.entrySet()) {
+            entry.getValue().reset();
+        }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -102,7 +105,7 @@ public class Treasure extends JavaPlugin {
         List<String> strings = new ArrayList<>();
         for (Map.Entry<FixedLocation, TreasureChest> entry : treasureChests.entrySet()) {
             FixedLocation accepted = entry.getKey();
-            strings.add(accepted._world + "|" + accepted._x + "|" + accepted._y + "|" + accepted._z);
+            strings.add(accepted._world.getName() + "|" + accepted._x + "|" + accepted._y + "|" + accepted._z);
         }
         getConfig().set("chests", strings);
         saveConfig();

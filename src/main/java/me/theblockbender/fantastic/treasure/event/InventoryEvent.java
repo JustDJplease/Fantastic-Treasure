@@ -37,15 +37,19 @@ public class InventoryEvent implements Listener {
             switch (slot) {
                 case 19:
                     treasureChest.start(player, TreasureType.NORMAL);
+                    player.closeInventory();
                     break;
                 case 21:
                     treasureChest.start(player, TreasureType.HAUNTED);
+                    player.closeInventory();
                     break;
                 case 23:
                     treasureChest.start(player, TreasureType.SUNKEN);
+                    player.closeInventory();
                     break;
                 case 25:
                     treasureChest.start(player, TreasureType.LEGENDARY);
+                    player.closeInventory();
                     break;
                 case 49:
                     player.closeInventory();

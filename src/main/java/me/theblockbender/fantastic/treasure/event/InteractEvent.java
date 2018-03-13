@@ -37,6 +37,11 @@ public class InteractEvent implements Listener {
                 break;
             }
         }
+        for(Map.Entry<FixedLocation, TreasureChest> entry : treasure.treasureChests.entrySet()){
+            if(entry.getValue().isOwner(player)){
+                event.setCancelled(true);
+            }
+        }
         if (treasureChest != null) {
             event.setCancelled(true);
             if (treasureChest.isActive()) {
@@ -59,7 +64,7 @@ public class InteractEvent implements Listener {
         event.setCancelled(true);
         if (session.isOwner(player)) {
             if(session.isAnimationFinished()) {
-                session.openLoot(location, player);
+                session.openLoot(location);
             }else{
                 player.playSound(player.getLocation(), Sound.BLOCK_CHEST_LOCKED, 1f, 1f);
             }

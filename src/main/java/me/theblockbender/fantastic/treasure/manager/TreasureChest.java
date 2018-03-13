@@ -4,6 +4,7 @@ import me.theblockbender.fantastic.treasure.Treasure;
 import me.theblockbender.fantastic.treasure.util.FixedLocation;
 import me.theblockbender.fantastic.treasure.util.UtilVelocity;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -28,7 +29,7 @@ public class TreasureChest {
     private boolean _active = false;
     private boolean _isAnimationFinished = false;
     private Player _player;
-    private HashMap<Location, Boolean> _loot = new HashMap<>();
+    private HashMap<FixedLocation, Boolean> _loot = new HashMap<>();
     private TreasureType _type;
     private long _timeStarted;
     private List<TreasureReward> _rewards = new ArrayList<>();
@@ -70,10 +71,24 @@ public class TreasureChest {
         spawnInLootChests();
     }
 
-    public void openLoot(Location loot, Player player) {
-        TreasureReward reward = _rewards.get(0);
-        _player.sendMessage(ChatColor.DARK_GRAY + "- " + reward.getDisplayName());
-        _rewards.remove(0);
+    public void openLoot(Location loot) {
+        FixedLocation fstart = new FixedLocation(loot);
+        boolean result = false;
+        FixedLocation key = null;
+        for (Map.Entry<FixedLocation, Boolean> entry : _loot.entrySet()) {
+            if (fstart.isSameAs(entry.getKey())) {
+                result = entry.getValue();
+                key = entry.getKey();
+                break;
+            }
+        }
+        if(result) {
+            _loot.put(key, false);
+            TreasureReward reward = _rewards.get(0);
+            _player.sendMessage(ChatColor.DARK_GRAY + "- " + reward.getDisplayName());
+            _rewards.remove(0);
+            //TODO play opening animation for block @loot.
+        }
     }
 
     /**
@@ -83,15 +98,17 @@ public class TreasureChest {
         _placeTask.clear();
         _active = false;
         _isAnimationFinished = false;
-        Location location = _player.getLocation();
-        Location position = _center.toLocation().add(0.5, 1.0, 0.5);
-        position.setYaw(location.getYaw());
-        position.setPitch(location.getPitch());
-        _player.teleport(position);
+        if(_player != null && _player.isOnline()) {
+            Location location = _player.getLocation();
+            Location position = _center.toLocation().add(0.5, 1.0, 0.5);
+            position.setYaw(location.getYaw());
+            position.setPitch(location.getPitch());
+            _player.teleport(position);
+        }
         _player = null;
         _rewards.clear();
-        for (Map.Entry<Location, Boolean> entry : _loot.entrySet()) {
-            entry.getKey().getBlock().setType(Material.AIR);
+        for (Map.Entry<FixedLocation, Boolean> entry : _loot.entrySet()) {
+            entry.getKey().toLocation().getBlock().setType(Material.AIR);
         }
         _loot.clear();
         _type = null;
@@ -127,10 +144,10 @@ public class TreasureChest {
             reset();
             return;
         }
-        if(_placeTask.isEmpty()){
-            if(!_isAnimationFinished){
+        if (_placeTask.isEmpty()) {
+            if (!_isAnimationFinished) {
                 _isAnimationFinished = true;
-                _player.sendTitle(_type.getTitle(), treasure.language.get("subtitle"),10, 30, 10);
+                _player.sendTitle(_type.getTitle(), treasure.language.get("subtitle"), 10, 30, 10);
             }
         }
         List<TreasureLootChest> cleanUp = new ArrayList<>();
@@ -178,12 +195,19 @@ public class TreasureChest {
         _placeTask.add(new TreasureLootChest(material, chest.add(0, 0, 2).clone(), middle, 150));
         _placeTask.add(new TreasureLootChest(material, chest.add(1, 0, 1).clone(), middle, 175));
         for (TreasureLootChest lootChest : _placeTask) {
-            _loot.put(lootChest.getLocation(), false);
+            _loot.put(new FixedLocation(lootChest.getLocation()), true);
         }
     }
 
     public boolean isLootChestLootable(Location location) {
-        return _loot.containsKey(location) && !_loot.get(location);
+        FixedLocation fl = new FixedLocation(location);
+        boolean lootable = false;
+        for (Map.Entry<FixedLocation, Boolean> entry : _loot.entrySet()) {
+            if (fl.isSameAs(entry.getKey())) {
+                lootable = entry.getValue();
+            }
+        }
+        return lootable;
     }
 
     public boolean isActive() {
