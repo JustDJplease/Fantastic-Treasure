@@ -4,9 +4,9 @@ import org.bukkit.Material;
 import org.jetbrains.annotations.Contract;
 
 public enum TreasureType {
-    NORMAL("§f§lRegular Treasure Chest", Material.CHEST, "normal_treasure"), SUNKEN("§f§lSunken Treasure Chest",
-            Material.TRAPPED_CHEST, "sunken_treasure"), HAUNTED("§f§lRegular Treasure Chest",
-            Material.CHEST, "haunted_treasure"), LEGENDARY("§f§lRegular Treasure Chest", Material.ENDER_CHEST, "legendary_treasure");
+    NORMAL("§f§lRegular Treasure Chest", Material.CHEST, "normal_treasure"), SUNKEN("§b§lSunken §3§lTreasure Chest",
+            Material.TRAPPED_CHEST, "sunken_treasure"), HAUNTED("§4§lHaunted §c§lTreasure Chest",
+            Material.CHEST, "haunted_treasure"), LEGENDARY("§6§lLegendary §e§lTreasure Chest", Material.ENDER_CHEST, "legendary_treasure");
 
     private final String _name;
     private final Material _material;
