@@ -2,9 +2,11 @@ package me.theblockbender.fantastic.treasure.event;
 
 import me.theblockbender.fantastic.treasure.Treasure;
 import me.theblockbender.fantastic.treasure.manager.TreasureChest;
+import me.theblockbender.fantastic.treasure.util.FixedLocation;
 import me.theblockbender.fantastic.treasure.util.UtilVelocity;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,12 +27,18 @@ public class InteractEvent implements Listener {
     public void onPlayerClickChest(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Block clicked = event.getClickedBlock();
-        if (clicked == null || clicked.getType() != Material.CHEST)
+        if (clicked == null || (clicked.getType() != Material.CHEST && clicked.getType() != Material.TRAPPED_CHEST && clicked.getType() != Material.ENDER_CHEST))
             return;
         Location location = clicked.getLocation();
-        if (treasure.treasureChests.containsKey(location)) {
+        TreasureChest treasureChest = null;
+        for(Map.Entry<FixedLocation, TreasureChest> entry : treasure.treasureChests.entrySet()){
+            if(entry.getKey().isSameAs(new FixedLocation(location))){
+                treasureChest = entry.getValue();
+                break;
+            }
+        }
+        if (treasureChest != null) {
             event.setCancelled(true);
-            TreasureChest treasureChest = treasure.treasureChests.get(location);
             if (treasureChest.isActive()) {
                 player.sendMessage(treasure.language.getWithPrefix("already-active"));
                 return;
@@ -39,10 +47,10 @@ public class InteractEvent implements Listener {
             return;
         }
         TreasureChest session = null;
-        for (Map.Entry<Location, TreasureChest> entry : treasure.treasureChests.entrySet()) {
-            TreasureChest treasureChest = entry.getValue();
-            if (treasureChest.isLootChestLootable(location)) {
-                session = treasureChest;
+        for (Map.Entry<FixedLocation, TreasureChest> entry : treasure.treasureChests.entrySet()) {
+            TreasureChest tc = entry.getValue();
+            if (tc.isLootChestLootable(location)) {
+                session = tc;
                 break;
             }
         }
@@ -50,7 +58,11 @@ public class InteractEvent implements Listener {
             return;
         event.setCancelled(true);
         if (session.isOwner(player)) {
-            //TODO open loot.
+            if(session.isAnimationFinished()) {
+                session.openLoot(location, player);
+            }else{
+                player.playSound(player.getLocation(), Sound.BLOCK_CHEST_LOCKED, 1f, 1f);
+            }
             return;
         }
         player.sendMessage(treasure.language.getWithPrefix("not-your-session"));

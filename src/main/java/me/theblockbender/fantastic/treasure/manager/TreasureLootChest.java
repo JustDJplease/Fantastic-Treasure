@@ -34,7 +34,7 @@ public class TreasureLootChest {
     }
 
     @SuppressWarnings("deprecation")
-    public void run() {
+    public boolean run() {
         if (_delay < 1) {
             Block block = _loc.getBlock();
             block.setType(_material);
@@ -42,10 +42,12 @@ public class TreasureLootChest {
             _loc.getWorld().playSound(_loc, Sound.BLOCK_WOOD_PLACE, 1f, 1f);
             playSpawnEffect();
             playNote();
+            return true;
         } else {
-            if (_delay == 1)
+            if (_delay == 15)
                 playPrepareEffect();
             _delay--;
+            return false;
         }
     }
 
@@ -62,19 +64,19 @@ public class TreasureLootChest {
         switch (height) {
             case 1:
                 return Note.natural(0, Tone.G);
-            case 3:
+            case 25:
                 return Note.natural(0, Tone.A);
-            case 5:
+            case 50:
                 return Note.natural(0, Tone.B);
-            case 7:
+            case 75:
                 return Note.natural(0, Tone.C);
-            case 9:
+            case 100:
                 return Note.natural(0, Tone.D);
-            case 11:
+            case 125:
                 return Note.natural(0, Tone.E);
-            case 13:
+            case 150:
                 return Note.natural(0, Tone.F);
-            case 15:
+            case 175:
                 return Note.natural(1, Tone.G);
         }
         return Note.natural(0, Tone.G);

@@ -15,6 +15,7 @@ language:
    removed: "Removed a Treasure Chest."
    already-active: "Please wait. There is a looting session active already!"
    not-your-session: "Please wait. There is a looting session active already!"
+   subtitle: "&7Choose 4 Chests To Open "
 chests: []
 debug: true
 version: ${version}

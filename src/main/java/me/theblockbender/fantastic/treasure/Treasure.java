@@ -5,6 +5,7 @@ import me.theblockbender.fantastic.treasure.command.TreasureCommand;
 import me.theblockbender.fantastic.treasure.event.InteractEvent;
 import me.theblockbender.fantastic.treasure.event.InventoryEvent;
 import me.theblockbender.fantastic.treasure.manager.TreasureChest;
+import me.theblockbender.fantastic.treasure.util.FixedLocation;
 import me.theblockbender.fantastic.treasure.util.SchematicHandler;
 import me.theblockbender.fantastic.treasure.util.TreasureGUI;
 import org.bukkit.Bukkit;
@@ -23,14 +24,13 @@ public class Treasure extends JavaPlugin {
     public Language language;
     public SchematicHandler schematicHandler;
     public TreasureGUI treasureGUI;
-    public HashMap<Location, TreasureChest> treasureChests = new HashMap<>();
+    public HashMap<FixedLocation, TreasureChest> treasureChests = new HashMap<>();
     public HashMap<UUID, TreasureChest> gui = new HashMap<>();
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void onEnable() {
         getLogger().info("Enabling treasure chest feature.");
-        language = new Language(this);
         schematicHandler = new SchematicHandler(this);
         treasureGUI = new TreasureGUI(this);
         getCommand("treasure").setExecutor(new TreasureCommand(this));
@@ -39,7 +39,7 @@ public class Treasure extends JavaPlugin {
         pm.registerEvents(new InventoryEvent(this), this);
         if (!getDataFolder().exists())
             getDataFolder().mkdirs();
-        saveDefaultConfig();
+        createConfig();
         if (!getConfig().getString("version").equalsIgnoreCase(this.getDescription().getVersion())) {
             getLogger().warning("Your configuration file is outdated.");
             getLogger().warning("This might lead to problems with the plugin.");
@@ -58,6 +58,24 @@ public class Treasure extends JavaPlugin {
         getLogger().info("Disabling treasure chest feature.");
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void createConfig() {
+        try {
+            if (!getDataFolder().exists()) {
+                getDataFolder().mkdirs();
+            }
+            File file = new File(getDataFolder(), "config.yml");
+            if (!file.exists()) {
+                getLogger().info("Config.yml not found, creating!");
+                saveDefaultConfig();
+            } else {
+                getLogger().info("Config.yml found, loading!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void loadTreasure() {
         List<String> strings = getConfig().getStringList("chests");
         if (strings == null || strings.isEmpty())
@@ -70,7 +88,8 @@ public class Treasure extends JavaPlugin {
                 Block block = chest.getBlock();
                 if (block.getType() == Material.CHEST) {
                     MaterialData data = block.getState().getData();
-                    treasureChests.put(chest, new TreasureChest(this, chest, data));
+                    FixedLocation fl = new FixedLocation(chest);
+                    treasureChests.put(fl, new TreasureChest(this, fl, data));
                 }
             } catch (Exception ignored) {
             }
@@ -81,9 +100,9 @@ public class Treasure extends JavaPlugin {
 
     public void saveTreasure() {
         List<String> strings = new ArrayList<>();
-        for (Map.Entry<Location, TreasureChest> entry : treasureChests.entrySet()) {
-            Location accepted = entry.getKey();
-            strings.add(accepted.getWorld().getName() + "|" + accepted.getBlockX() + "|" + accepted.getBlockY() + "|" + accepted.getBlockZ());
+        for (Map.Entry<FixedLocation, TreasureChest> entry : treasureChests.entrySet()) {
+            FixedLocation accepted = entry.getKey();
+            strings.add(accepted._world + "|" + accepted._x + "|" + accepted._y + "|" + accepted._z);
         }
         getConfig().set("chests", strings);
         saveConfig();
@@ -91,7 +110,7 @@ public class Treasure extends JavaPlugin {
 
     private void startTasks() {
         Bukkit.getScheduler().runTaskTimer(this, () -> {
-            for (Map.Entry<Location, TreasureChest> entry : treasureChests.entrySet()) {
+            for (Map.Entry<FixedLocation, TreasureChest> entry : treasureChests.entrySet()) {
                 entry.getValue().run();
             }
         }, 1L, 1L);

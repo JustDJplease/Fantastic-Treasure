@@ -2,6 +2,7 @@ package me.theblockbender.fantastic.treasure.command;
 
 import me.theblockbender.fantastic.treasure.Treasure;
 import me.theblockbender.fantastic.treasure.manager.TreasureChest;
+import me.theblockbender.fantastic.treasure.util.FixedLocation;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -11,6 +12,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class TreasureCommand implements CommandExecutor {
 
@@ -44,16 +47,24 @@ public class TreasureCommand implements CommandExecutor {
         Player player = (Player) sender;
         Block target = player.getTargetBlock(null, 10);
         Location location = target.getLocation();
+        FixedLocation fl = new FixedLocation(location);
         if (args[0].equalsIgnoreCase("create")) {
             if (target.getType() != Material.CHEST) {
                 player.sendMessage(treasure.language.getWithPrefix("no-chest"));
                 return true;
             }
-            if(treasure.treasureChests.containsKey(location)){
+            TreasureChest treasureChest = null;
+            for(Map.Entry<FixedLocation, TreasureChest> entry : treasure.treasureChests.entrySet()){
+                if(entry.getKey().isSameAs(new FixedLocation(location))){
+                    treasureChest = entry.getValue();
+                    break;
+                }
+            }
+            if(treasureChest != null){
                 player.sendMessage(treasure.language.getWithPrefix("is-treasure"));
                 return true;
             }
-            treasure.treasureChests.put(location, new TreasureChest(treasure, location, target.getState().getData()));
+            treasure.treasureChests.put(fl, new TreasureChest(treasure, fl, target.getState().getData()));
             treasure.saveTreasure();
             player.sendMessage(treasure.language.getWithPrefix("created"));
             return true;
@@ -63,13 +74,21 @@ public class TreasureCommand implements CommandExecutor {
                 player.sendMessage(treasure.language.getWithPrefix("no-chest"));
                 return true;
             }
-            if(!treasure.treasureChests.containsKey(location)){
+            TreasureChest treasureChest = null;
+            FixedLocation finL = null;
+            for(Map.Entry<FixedLocation, TreasureChest> entry : treasure.treasureChests.entrySet()){
+                if(entry.getKey().isSameAs(new FixedLocation(location))){
+                    treasureChest = entry.getValue();
+                    finL = entry.getKey();
+                    break;
+                }
+            }
+            if(treasureChest == null){
                 player.sendMessage(treasure.language.getWithPrefix("no-treasure"));
                 return true;
             }
-            TreasureChest treasureChest = treasure.treasureChests.get(location);
             treasureChest.reset();
-            treasure.treasureChests.remove(location);
+            treasure.treasureChests.remove(finL);
             treasure.saveTreasure();
             player.sendMessage(treasure.language.getWithPrefix("removed"));
             return true;

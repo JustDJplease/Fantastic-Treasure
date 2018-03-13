@@ -74,6 +74,15 @@
                 <includes>
                     <include>plugin.yml</include>
                     <include>config.yml</include>
+                </includes>
+                <excludes>
+                    <exclude>**/schematics/*</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <targetPath>.</targetPath>
+                <directory>${basedir}/src/main/resources/schematics</directory>
+                <includes>
                     <include>haunted_treasure.schematic</include>
                     <include>legendary_treasure.schematic</include>
                     <include>normal_treasure.schematic</include>
