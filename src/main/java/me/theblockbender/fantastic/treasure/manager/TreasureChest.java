@@ -63,7 +63,7 @@ public class TreasureChest {
     /**
      * Reset the treasure chest.
      */
-    private void reset() {
+    public void reset() {
         _placeTask.clear();
         _active = false;
         _player = null;

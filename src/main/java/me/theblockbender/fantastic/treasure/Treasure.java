@@ -1,6 +1,7 @@
 package me.theblockbender.fantastic.treasure;
 
 
+import me.theblockbender.fantastic.treasure.command.TreasureCommand;
 import me.theblockbender.fantastic.treasure.manager.TreasureChest;
 import me.theblockbender.fantastic.treasure.util.SchematicHandler;
 import org.bukkit.Bukkit;
@@ -28,6 +29,7 @@ public class Treasure extends JavaPlugin {
         getLogger().info("Enabling treasure chest feature.");
         language = new Language(this);
         schematicHandler = new SchematicHandler(this);
+        getCommand("treasure").setExecutor(new TreasureCommand(this));
         if (!getDataFolder().exists())
             getDataFolder().mkdirs();
         saveDefaultConfig();
@@ -49,7 +51,7 @@ public class Treasure extends JavaPlugin {
         getLogger().info("Disabling treasure chest feature.");
     }
 
-    private void loadTreasure() {
+    public void loadTreasure() {
         List<String> strings = getConfig().getStringList("chests");
         if (strings == null || strings.isEmpty())
             return;
