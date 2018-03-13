@@ -46,10 +46,10 @@ public class Treasure extends JavaPlugin {
         }
         loadTreasure();
         language = new Language(this);
-        saveResource("resources" + File.separator + "haunted_treasure.schematic", true);
-        saveResource("resources" + File.separator + "legendary_treasure.schematic", true);
-        saveResource("resources" + File.separator + "normal_treasure.schematic", true);
-        saveResource("resources" + File.separator + "sunken_treasure.schematic", true);
+        saveResource("haunted_treasure.schematic", true);
+        saveResource("legendary_treasure.schematic", true);
+        saveResource("normal_treasure.schematic", true);
+        saveResource("sunken_treasure.schematic", true);
         startTasks();
     }
 

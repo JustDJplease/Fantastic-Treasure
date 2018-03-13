@@ -20,7 +20,7 @@ public class SchematicHandler {
     public void paste(TreasureType type, Location pasteFrom) {
         try {
             ClipboardFormat.SCHEMATIC
-                    .load(new File(treasure.getDataFolder() + File.separator + "resources" + File.separator
+                    .load(new File(treasure.getDataFolder() + File.separator
                             + type.getSchematic() + ".schematic"))
                     .paste(FaweAPI.getWorld(pasteFrom.getWorld().getName()),
                             new Vector(pasteFrom.getBlockX(), pasteFrom.getBlockY(), pasteFrom.getBlockZ()),
