@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.theblockbender.fantastic</groupId>
     <artifactId>treasure</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>Treasure</name>
     <description>Adds lootboxes and treasure chests.</description>
 
@@ -73,6 +73,11 @@
                 <directory>${basedir}/src/main/resources/</directory>
                 <includes>
                     <include>plugin.yml</include>
+                    <include>config.yml</include>
+                    <include>haunted_treasure.schematic</include>
+                    <include>legendary_treasure.schematic</include>
+                    <include>normal_treasure.schematic</include>
+                    <include>sunken_treasure.schematic</include>
                 </includes>
             </resource>
         </resources>
