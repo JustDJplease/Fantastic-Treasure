@@ -80,8 +80,8 @@ public class TreasureCommand implements CommandExecutor {
 
     private void help(@NotNull CommandSender sender, String label) {
         sender.sendMessage(treasure.language.getWithPrefix("help"));
-        sender.sendMessage(ChatColor.BLUE + "/" + label + " " + ChatColor.AQUA + "create " + ChatColor.DARK_GRAY + "- " + ChatColor.GRAY + treasure.language.get("help-create"));
-        sender.sendMessage(ChatColor.BLUE + "/" + label + " " + ChatColor.AQUA + "remove " + ChatColor.DARK_GRAY + "- " + ChatColor.GRAY + treasure.language.get("help-remove"));
-        sender.sendMessage(ChatColor.BLUE + "/" + label + " " + ChatColor.AQUA + "reload " + ChatColor.DARK_GRAY + "- " + ChatColor.GRAY + treasure.language.get("help-reload"));
+        sender.sendMessage(ChatColor.DARK_AQUA + "/" + label + " " + ChatColor.AQUA + "create " + ChatColor.DARK_GRAY + "- " + ChatColor.GRAY + treasure.language.get("help-create"));
+        sender.sendMessage(ChatColor.DARK_AQUA + "/" + label + " " + ChatColor.AQUA + "remove " + ChatColor.DARK_GRAY + "- " + ChatColor.GRAY + treasure.language.get("help-remove"));
+        sender.sendMessage(ChatColor.DARK_AQUA + "/" + label + " " + ChatColor.AQUA + "reload " + ChatColor.DARK_GRAY + "- " + ChatColor.GRAY + treasure.language.get("help-reload"));
     }
 }
