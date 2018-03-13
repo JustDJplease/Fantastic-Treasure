@@ -1,6 +1,7 @@
 package me.theblockbender.fantastic.treasure.manager;
 
 import me.theblockbender.fantastic.treasure.Treasure;
+import me.theblockbender.fantastic.treasure.util.UtilVelocity;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -9,11 +10,12 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TreasureChest {
     // Set when a new instance is created:
@@ -24,10 +26,10 @@ public class TreasureChest {
     // Set when a new session is started:
     private boolean _active = false;
     private Player _player;
-    private List<Location> _loot;
+    private HashMap<Location, Boolean> _loot = new HashMap<>();
     private TreasureType _type;
     private long _timeStarted;
-    private List<TreasureReward> _rewards;
+    private List<TreasureReward> _rewards = new ArrayList<>();
 
     // Blocks to set in animation:
     private List<TreasureLootChest> _placeTask = new ArrayList<>();
@@ -67,11 +69,11 @@ public class TreasureChest {
         _placeTask.clear();
         _active = false;
         _player = null;
-        _rewards = null;
-        for(Location location : _loot){
-            location.getBlock().setType(Material.AIR);
+        _rewards.clear();
+        for(Map.Entry<Location, Boolean> entry : _loot.entrySet()){
+            entry.getKey().getBlock().setType(Material.AIR);
         }
-        _loot = null;
+        _loot.clear();
         _type = null;
         _timeStarted = 0L;
         treasure.schematicHandler.paste(TreasureType.NORMAL,_center);
@@ -112,12 +114,12 @@ public class TreasureChest {
             if (entity instanceof Player){
                 if(entity != _player) {
                     if (entity.getLocation().distanceSquared(_center) < 9) {
-                        velocity(entity, calculateVector(_center, entity));
+                        UtilVelocity.velocity(entity, UtilVelocity.calculateVector(_center, entity));
                     }
                 }
             }else{
                 if (entity.getLocation().distanceSquared(_center) < 9) {
-                    velocity(entity, calculateVector(_center, entity));
+                    UtilVelocity.velocity(entity, UtilVelocity.calculateVector(_center, entity));
                 }
             }
         }
@@ -142,29 +144,23 @@ public class TreasureChest {
         _placeTask.add(new TreasureLootChest(material, chest.add(0, 0, 2).clone(), _center, 13));
         _placeTask.add(new TreasureLootChest(material, chest.add(1, 0, 1).clone(), _center, 15));
         for(TreasureLootChest lootChest : _placeTask){
-            _loot.add(lootChest.getLocation());
+            _loot.put(lootChest.getLocation(), false);
         }
     }
 
-    private Vector calculateVector(@NotNull Location from, @NotNull Entity to) {
-        return to.getLocation().toVector().subtract(from.toVector()).setY(0).normalize();
+    public boolean isLootChestLootable(Location location) {
+        return _loot.containsKey(location) && !_loot.get(location);
     }
 
-    private void velocity(Entity entity, @NotNull Vector vector) {
-        {
-            if ((Double.isNaN(vector.getX())) || (Double.isNaN(vector.getY())) || (Double.isNaN(vector.getZ())) || (vector.length() == 0.0D)) {
-                return;
-            }
-            vector.setY(0.8D);
-            vector.normalize();
-            vector.multiply(1.6D);
-            vector.setY(vector.getY() + 0.0D);
-            if (vector.getY() > 10.0D) {
-                vector.setY(10.0D);
-            }
-            entity.setFallDistance(0.0F);
-            entity.setVelocity(vector);
-        }
+    public boolean isActive() {
+        return _active;
     }
 
+    public boolean isOwner(Player player) {
+        return _player == player;
+    }
+
+    public @NotNull Location getCenter() {
+        return _center;
+    }
 }

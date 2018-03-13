@@ -13,6 +13,8 @@ language:
    created: "Created a new Treasure Chest."
    no-treasure: "This block is not a Treasure Chest."
    removed: "Removed a Treasure Chest."
+   already-active: "Please wait. There is a looting session active already!"
+   not-your-session: "Please wait. There is a looting session active already!"
 chests: []
 debug: true
 version: ${version}

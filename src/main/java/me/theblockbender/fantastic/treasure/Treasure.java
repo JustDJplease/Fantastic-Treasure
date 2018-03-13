@@ -2,26 +2,29 @@ package me.theblockbender.fantastic.treasure;
 
 
 import me.theblockbender.fantastic.treasure.command.TreasureCommand;
+import me.theblockbender.fantastic.treasure.event.InteractEvent;
+import me.theblockbender.fantastic.treasure.event.InventoryEvent;
 import me.theblockbender.fantastic.treasure.manager.TreasureChest;
 import me.theblockbender.fantastic.treasure.util.SchematicHandler;
+import me.theblockbender.fantastic.treasure.util.TreasureGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.material.MaterialData;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Treasure extends JavaPlugin {
 
     public Language language;
     public SchematicHandler schematicHandler;
+    public TreasureGUI treasureGUI;
     public HashMap<Location, TreasureChest> treasureChests = new HashMap<>();
+    public List<UUID> gui = new ArrayList<>();
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
@@ -29,7 +32,11 @@ public class Treasure extends JavaPlugin {
         getLogger().info("Enabling treasure chest feature.");
         language = new Language(this);
         schematicHandler = new SchematicHandler(this);
+        treasureGUI = new TreasureGUI(this);
         getCommand("treasure").setExecutor(new TreasureCommand(this));
+        PluginManager pm = Bukkit.getPluginManager();
+        pm.registerEvents(new InteractEvent(this), this);
+        pm.registerEvents(new InventoryEvent(this), this);
         if (!getDataFolder().exists())
             getDataFolder().mkdirs();
         saveDefaultConfig();
@@ -72,7 +79,7 @@ public class Treasure extends JavaPlugin {
         saveTreasure();
     }
 
-    public void saveTreasure(){
+    public void saveTreasure() {
         List<String> strings = new ArrayList<>();
         for (Map.Entry<Location, TreasureChest> entry : treasureChests.entrySet()) {
             Location accepted = entry.getKey();
