@@ -3,3 +3,4 @@ version: ${version}
 description: ${description}
 author: TheBlockBender
 main: me.theblockbender.fantastic.treasure.Treasure
+depend: [WorldEdit, FastAsyncWorldEdit]
