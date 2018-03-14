@@ -1,7 +1,15 @@
 package me.theblockbender.fantastic.treasure.manager;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.BlockPosition;
+import com.gmail.filoghost.holographicdisplays.api.Hologram;
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
+import de.slikey.effectlib.EffectLib;
 import me.theblockbender.fantastic.treasure.Treasure;
 import me.theblockbender.fantastic.treasure.util.FixedLocation;
+import me.theblockbender.fantastic.treasure.util.UtilItem;
 import me.theblockbender.fantastic.treasure.util.UtilVelocity;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -14,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +41,9 @@ public class TreasureChest {
     private HashMap<FixedLocation, Boolean> _loot = new HashMap<>();
     private TreasureType _type;
     private long _timeStarted;
+    private int _fadeOut = 60;
     private List<TreasureReward> _rewards = new ArrayList<>();
+    private List<Hologram> _holos = new ArrayList<>();
 
     // Blocks to set in animation:
     private List<TreasureLootChest> _placeTask = new ArrayList<>();
@@ -55,17 +66,20 @@ public class TreasureChest {
      * Should be called after a player opens a TreasureChest.
      */
     public void start(Player player, TreasureType type) {
+        _holos.clear();
         _active = true;
         _isAnimationFinished = false;
         _player = player;
         _type = type;
+        _fadeOut = 60;
         _timeStarted = System.currentTimeMillis();
         treasure.schematicHandler.paste(_type, _center.toLocation());
         // TODO PLACEHOLDERS!
-        _rewards.add(new TreasureReward());
-        _rewards.add(new TreasureReward());
-        _rewards.add(new TreasureReward());
-        _rewards.add(new TreasureReward());
+        _rewards.add(new TreasureReward("Bread", TreasureRarity.COMMON, new UtilItem(Material.BREAD, 1).toItemStack()));
+        _rewards.add(new TreasureReward("Gunpowder", TreasureRarity.EPIC, new UtilItem(Material.SULPHUR, 1).toItemStack()));
+        _rewards.add(new TreasureReward("Mob Spawner", TreasureRarity.LEGENDARY, new UtilItem(Material.MOB_SPAWNER, 1).toItemStack()));
+        _rewards.add(new TreasureReward("Titan Rank", TreasureRarity.MYTHICAL, new UtilItem(Material.NETHER_STAR, 1).toItemStack()));
+        ;
         //TODO create random set of loot based on type.
         //TODO give those rewards to the player.
         spawnInLootChests();
@@ -82,12 +96,32 @@ public class TreasureChest {
                 break;
             }
         }
-        if(result) {
+        if (result) {
+            if (_rewards.isEmpty()) {
+                return;
+            }
             _loot.put(key, false);
             TreasureReward reward = _rewards.get(0);
             _player.sendMessage(ChatColor.DARK_GRAY + "- " + reward.getDisplayName());
+            PacketContainer chest = new PacketContainer(PacketType.Play.Server.BLOCK_ACTION);
+            chest.getBlocks().write(0, Material.CHEST);
+            chest.getBlockPositionModifier().write(0, new BlockPosition(loot.getBlockX(), loot.getBlockY(), loot.getBlockZ()));
+            chest.getIntegers().write(0, 1);
+            chest.getIntegers().write(1, 1); //1 for open, 0 for close
+            try {
+                for (Player online : Bukkit.getOnlinePlayers()) {
+                    ProtocolLibrary.getProtocolManager().sendServerPacket(online, chest, true);
+                }
+            } catch (InvocationTargetException ex) {
+                throw new IllegalStateException("Unable to send packet " + chest, ex);
+            }
+            // TODO EFFECT
+            Hologram holo = HologramsAPI.createHologram(treasure, loot.clone().add(0.5, 2.0, 0.5));
+            holo.appendTextLine(reward.getRarity().getDisplayName());
+            holo.appendTextLine(reward.getDisplayName());
+            holo.appendItemLine(reward.getDisplayItem());
+            _holos.add(holo);
             _rewards.remove(0);
-            //TODO play opening animation for block @loot.
         }
     }
 
@@ -95,10 +129,14 @@ public class TreasureChest {
      * Reset the treasure chest.
      */
     public void reset() {
+        for (Hologram holo : _holos) {
+            holo.delete();
+        }
+        _fadeOut = 60;
         _placeTask.clear();
         _active = false;
         _isAnimationFinished = false;
-        if(_player != null && _player.isOnline()) {
+        if (_player != null && _player.isOnline()) {
             Location location = _player.getLocation();
             Location position = _center.toLocation().add(0.5, 1.0, 0.5);
             position.setYaw(location.getYaw());
@@ -127,7 +165,11 @@ public class TreasureChest {
         if (!_active)
             return;
         if (_rewards.isEmpty()) {
-            reset();
+            if (_fadeOut < 1) {
+                reset();
+            } else {
+                _fadeOut--;
+            }
             return;
         }
         if (_player == null || !_player.isOnline()) {
@@ -186,14 +228,14 @@ public class TreasureChest {
         Location chest = _center.toLocation();
         Material material = _type.getMaterial();
         Location middle = _center.toLocation();
-        _placeTask.add(new TreasureLootChest(material, chest.add(1, 0, 2).clone(), middle, 1));
-        _placeTask.add(new TreasureLootChest(material, chest.add(1, 0, -1).clone(), middle, 25));
-        _placeTask.add(new TreasureLootChest(material, chest.add(0, 0, -2).clone(), middle, 50));
-        _placeTask.add(new TreasureLootChest(material, chest.add(-1, 0, -1).clone(), middle, 75));
-        _placeTask.add(new TreasureLootChest(material, chest.add(-2, 0, 0).clone(), middle, 100));
-        _placeTask.add(new TreasureLootChest(material, chest.add(-1, 0, 1).clone(), middle, 125));
-        _placeTask.add(new TreasureLootChest(material, chest.add(0, 0, 2).clone(), middle, 150));
-        _placeTask.add(new TreasureLootChest(material, chest.add(1, 0, 1).clone(), middle, 175));
+        _placeTask.add(new TreasureLootChest(treasure, material, chest.add(1, 0, 2).clone(), middle, 20));
+        _placeTask.add(new TreasureLootChest(treasure, material, chest.add(1, 0, -1).clone(), middle, 40));
+        _placeTask.add(new TreasureLootChest(treasure, material, chest.add(0, 0, -2).clone(), middle, 60));
+        _placeTask.add(new TreasureLootChest(treasure, material, chest.add(-1, 0, -1).clone(), middle, 80));
+        _placeTask.add(new TreasureLootChest(treasure, material, chest.add(-2, 0, 0).clone(), middle, 100));
+        _placeTask.add(new TreasureLootChest(treasure, material, chest.add(-1, 0, 1).clone(), middle, 120));
+        _placeTask.add(new TreasureLootChest(treasure, material, chest.add(0, 0, 2).clone(), middle, 140));
+        _placeTask.add(new TreasureLootChest(treasure, material, chest.add(1, 0, 1).clone(), middle, 160));
         for (TreasureLootChest lootChest : _placeTask) {
             _loot.put(new FixedLocation(lootChest.getLocation()), true);
         }

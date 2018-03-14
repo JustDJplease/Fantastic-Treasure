@@ -3,7 +3,7 @@ version: ${version}
 description: ${description}
 authors: [TheBlockBender, JustDJplease]
 main: me.theblockbender.fantastic.treasure.Treasure
-depend: [WorldEdit, FastAsyncWorldEdit]
+depend: [WorldEdit, FastAsyncWorldEdit, HolographicDisplays, ProtocolLib, EffectLib]
 website: https://github.com/JustDJplease/Fantastic-Treasure
 database: false
 

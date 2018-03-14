@@ -1,6 +1,8 @@
 package me.theblockbender.fantastic.treasure;
 
 
+import com.gmail.filoghost.holographicdisplays.api.Hologram;
+import de.slikey.effectlib.EffectManager;
 import me.theblockbender.fantastic.treasure.command.TreasureCommand;
 import me.theblockbender.fantastic.treasure.event.InteractEvent;
 import me.theblockbender.fantastic.treasure.event.InventoryEvent;
@@ -24,6 +26,7 @@ public class Treasure extends JavaPlugin {
     public Language language;
     public SchematicHandler schematicHandler;
     public TreasureGUI treasureGUI;
+    public EffectManager effectManager;
     public HashMap<FixedLocation, TreasureChest> treasureChests = new HashMap<>();
     public HashMap<UUID, TreasureChest> gui = new HashMap<>();
 
@@ -33,6 +36,7 @@ public class Treasure extends JavaPlugin {
         getLogger().info("Enabling treasure chest feature.");
         schematicHandler = new SchematicHandler(this);
         treasureGUI = new TreasureGUI(this);
+        effectManager = new EffectManager(this);
         getCommand("treasure").setExecutor(new TreasureCommand(this));
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new InteractEvent(this), this);
@@ -55,6 +59,7 @@ public class Treasure extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        effectManager.dispose();
         getLogger().info("Disabling treasure chest feature.");
         for (Map.Entry<FixedLocation, TreasureChest> entry : treasureChests.entrySet()) {
             entry.getValue().reset();

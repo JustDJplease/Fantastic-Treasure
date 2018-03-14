@@ -1,5 +1,10 @@
 package me.theblockbender.fantastic.treasure.manager;
 
+import de.slikey.effectlib.effect.HelixEffect;
+import de.slikey.effectlib.effect.VortexEffect;
+import de.slikey.effectlib.effect.WarpEffect;
+import de.slikey.effectlib.util.ParticleEffect;
+import me.theblockbender.fantastic.treasure.Treasure;
 import org.bukkit.*;
 import org.bukkit.Note.Tone;
 import org.bukkit.block.Block;
@@ -7,13 +12,15 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class TreasureLootChest {
+    private Treasure treasure;
     private Material _material;
     private int _delay;
     private int _pitch;
     private Location _loc;
     private byte _direction;
 
-    TreasureLootChest(Material material, @NotNull Location location, @NotNull Location center, Integer delayTicks) {
+    TreasureLootChest(Treasure treasure, Material material, @NotNull Location location, @NotNull Location center, Integer delayTicks) {
+        this.treasure = treasure;
         _material = material;
         _delay = delayTicks;
         _pitch = delayTicks;
@@ -44,7 +51,7 @@ public class TreasureLootChest {
             playNote();
             return true;
         } else {
-            if (_delay == 15)
+            if (_delay == 20)
                 playPrepareEffect();
             _delay--;
             return false;
@@ -62,29 +69,34 @@ public class TreasureLootChest {
     @org.jetbrains.annotations.NotNull
     private Note getNote(int height) {
         switch (height) {
-            case 1:
+            case 20:
                 return Note.natural(0, Tone.G);
-            case 25:
+            case 40:
                 return Note.natural(0, Tone.A);
-            case 50:
+            case 60:
                 return Note.natural(0, Tone.B);
-            case 75:
+            case 80:
                 return Note.natural(0, Tone.C);
             case 100:
                 return Note.natural(0, Tone.D);
-            case 125:
+            case 120:
                 return Note.natural(0, Tone.E);
-            case 150:
+            case 140:
                 return Note.natural(0, Tone.F);
-            case 175:
+            case 160:
                 return Note.natural(1, Tone.G);
         }
         return Note.natural(0, Tone.G);
     }
 
     private void playPrepareEffect() {
-        _loc.getWorld().spawnParticle(Particle.CLOUD, _loc.getBlockX() + 0.5, _loc.getBlockY() + 1,
-                _loc.getBlockZ() + 0.5, 10, 0.1, 0.5, 0.1, 0);
+        HelixEffect ve = new HelixEffect(treasure.effectManager);
+        ve.iterations = 5;
+        ve.setLocation(_loc.clone().add(0.5,0,0.5));
+        ve.particle = ParticleEffect.SPELL_WITCH;
+        ve.radius = 0.5f;
+        ve.duration = 10;
+        ve.start();
     }
 
     private void playSpawnEffect() {

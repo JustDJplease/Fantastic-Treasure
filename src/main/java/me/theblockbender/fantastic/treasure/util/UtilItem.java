@@ -26,7 +26,7 @@ public class UtilItem {
      * Create a new UtilItem over an existing itemstack.
      * @param is The itemstack to create the UtilItem over.
      */
-    private UtilItem(ItemStack is){
+    public UtilItem(ItemStack is){
         this.is=is;
     }
     /**
@@ -34,7 +34,7 @@ public class UtilItem {
      * @param m The material of the item.
      * @param amount The amount of the item.
      */
-    UtilItem(Material m, int amount){
+    public UtilItem(Material m, int amount){
         is= new ItemStack(m, amount);
     }
     /**
